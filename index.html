@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Chocolate Day!</title>
+    <style>
+        :root {
+            --primary-color: #fce4ec;
+            --text-color: #5d4037;
+            --accent-color: #d81b60;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            text-align: center;
+            overflow-x: hidden;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zm-28 4c0-3.314 2.686-6 6-6s6 2.686 6 6-2.686 6-6 6-6-2.686-6-6zm40-20c0-3.314 2.686-6 6-6s6 2.686 6 6-2.686 6-6 6-6-2.686-6-6z' fill='%23f8bbd0' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #intro-section, #final-section {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        #game-section {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+            color: var(--accent-color);
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+        .bears-img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 1em;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .btn:hover, .btn:active {
+            transform: scale(0.95);
+        }
+
+        #score-board {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #basket {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            font-size: 50px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .chocolate {
+            position: absolute;
+            top: -30px;
+            font-size: 30px;
+            user-select: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fall {
+            to { transform: translateY(450px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="intro-section">
+        <img src="https://i.pinimg.com/originals/c8/a1/4f/c8a14f86483666757712351394847c0c.gif" alt="Cute bears hugging" class="bears-img">
+        <p>hi my love<br>a small surprise for you</p>
+        <button class="btn" onclick="startGame()">what >></button>
+    </div>
+
+    <div id="game-section">
+        <div id="score-board">
+            Chocolates: <span id="score">0</span> / 25
+        </div>
+        <h1>Chocolate Rain!</h1>
+        <p>Move the basket to collect 25 chocolates</p>
+        <div id="game-area">
+            <div id="basket">🧺</div>
+        </div>
+    </div>
+
+    <div id="final-section" style="display: none;">
+        <h1>HAPPY CHOCOLATE DAY</h1>
+        <img src="https://i.pinimg.com/originals/a6/42/4a/a6424a6534d187662147603412d82453.gif" alt="Bears sharing chocolate" class="bears-img">
+        <p>you're sweeter than chocolates</p>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let gameInterval;
+    const basket = document.getElementById('basket');
+    const gameArea = document.getElementById('game-area');
+    const scoreDisplay = document.getElementById('score');
+
+    function startGame() {
+        document.getElementById('intro-section').style.display = 'none';
+        document.getElementById('game-section').style.display = 'flex';
+        gameInterval = setInterval(createChocolate, 800);
+
+        let isDragging = false;
+
+        basket.addEventListener('touchstart', (e) => {
+            isDragging = true;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                const gameAreaRect = gameArea.getBoundingClientRect();
+                let newLeft = touch.clientX - gameAreaRect.left - basket.offsetWidth / 2;
+
+                // Boundary checks
+                if (newLeft < 0) newLeft = 0;
+                if (newLeft > gameAreaRect.width - basket.offsetWidth) newLeft = gameAreaRect.width - basket.offsetWidth;
+
+                basket.style.left = newLeft + 'px';
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Mouse support for testing on desktop
+        basket.addEventListener('mousedown', (e) => {
+            isDragging = true;
+        });
+        document.addEventListener('mousemove', (e) => {
+             if (isDragging) {
+                const gameAreaRect = gameArea.getBoundingClientRect();
+                let newLeft = e.clientX - gameAreaRect.left - basket.offsetWidth / 2;
+                if (newLeft < 0) newLeft = 0;
+                if (newLeft > gameAreaRect.width - basket.offsetWidth) newLeft = gameAreaRect.width - basket.offsetWidth;
+                basket.style.left = newLeft + 'px';
+            }
+        });
+        document.addEventListener('mouseup', () => isDragging = false);
+    }
+
+    function createChocolate() {
+        const chocolate = document.createElement('div');
+        chocolate.classList.add('chocolate');
+        chocolate.innerText = '🍫';
+        chocolate.style.left = Math.random() * (gameArea.offsetWidth - 30) + 'px';
+        gameArea.appendChild(chocolate);
+
+        let fallInterval = setInterval(() => {
+            const chocolateRect = chocolate.getBoundingClientRect();
+            const basketRect = basket.getBoundingClientRect();
+
+            if (chocolateRect.top > gameArea.offsetHeight) {
+                clearInterval(fallInterval);
+                gameArea.removeChild(chocolate);
+            } else if (
+                chocolateRect.bottom >= basketRect.top &&
+                chocolateRect.left < basketRect.right &&
+                chocolateRect.right > basketRect.left
+            ) {
+                score++;
+                scoreDisplay.innerText = score;
+                clearInterval(fallInterval);
+                gameArea.removeChild(chocolate);
+                if (score >= 25) {
+                    endGame();
+                }
+            } else {
+                chocolate.style.top = (chocolate.offsetTop + 5) + 'px';
+            }
+        }, 20);
+    }
+
+    function endGame() {
+        clearInterval(gameInterval);
+        // Clear remaining chocolates
+        const chocolates = document.querySelectorAll('.chocolate');
+        chocolates.forEach(c => c.remove());
+
+        document.getElementById('game-section').style.display = 'none';
+        document.getElementById('final-section').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
